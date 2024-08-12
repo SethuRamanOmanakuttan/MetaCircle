@@ -6,8 +6,21 @@ export const Web3Context = createContext();
 
 // Initialize contract (replace with your contract address and ABI)
 // Initialize contract (replace with your contract address and ABI)
-const contractAddress = "0xedfc20dda74bf5345d2e166e1b4dcd66ba0b9710";
+const contractAddress = "0x9e7377e6c356bdf0c5abf1195ae33ca2ff985d13";
 const contractABI = [
+  {
+    inputs: [],
+    name: "commentCount",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
   {
     inputs: [
       {
@@ -24,6 +37,40 @@ const contractABI = [
     name: "commentOnPost",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    name: "comments",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "commentId",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "author",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "postId",
+        type: "uint256",
+      },
+      {
+        internalType: "string",
+        name: "content",
+        type: "string",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -74,49 +121,38 @@ const contractABI = [
     inputs: [
       {
         internalType: "uint256",
-        name: "_groupId",
-        type: "uint256",
-      },
-    ],
-    name: "joinGroup",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
         name: "_postId",
         type: "uint256",
       },
     ],
-    name: "likePost",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_postId",
-        type: "uint256",
-      },
-    ],
-    name: "unlikePost",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "commentCount",
+    name: "getCommentsForPost",
     outputs: [
       {
-        internalType: "uint256",
+        components: [
+          {
+            internalType: "uint256",
+            name: "commentId",
+            type: "uint256",
+          },
+          {
+            internalType: "address",
+            name: "author",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "postId",
+            type: "uint256",
+          },
+          {
+            internalType: "string",
+            name: "content",
+            type: "string",
+          },
+        ],
+        internalType: "struct SocialMedia.Comment[]",
         name: "",
-        type: "uint256",
+        type: "tuple[]",
       },
     ],
     stateMutability: "view",
@@ -126,69 +162,16 @@ const contractABI = [
     inputs: [
       {
         internalType: "uint256",
-        name: "",
+        name: "_postId",
         type: "uint256",
       },
     ],
-    name: "comments",
+    name: "getPostAuthorUsername",
     outputs: [
-      {
-        internalType: "uint256",
-        name: "commentId",
-        type: "uint256",
-      },
-      {
-        internalType: "address",
-        name: "author",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "postId",
-        type: "uint256",
-      },
       {
         internalType: "string",
-        name: "content",
+        name: "",
         type: "string",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_postId",
-        type: "uint256",
-      },
-    ],
-    name: "getPostComments",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_postId",
-        type: "uint256",
-      },
-    ],
-    name: "getPostLikes",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -304,6 +287,32 @@ const contractABI = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_groupId",
+        type: "uint256",
+      },
+    ],
+    name: "joinGroup",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_postId",
+        type: "uint256",
+      },
+    ],
+    name: "likePost",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "postCount",
     outputs: [
@@ -346,13 +355,21 @@ const contractABI = [
         name: "likes",
         type: "uint256",
       },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
       {
         internalType: "uint256",
-        name: "commentCount",
+        name: "_postId",
         type: "uint256",
       },
     ],
-    stateMutability: "view",
+    name: "unlikePost",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {

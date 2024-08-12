@@ -1,11 +1,9 @@
-//App.js
 import React, { useContext, useState, useEffect } from "react";
 import { Web3Provider, Web3Context } from "./contexts/Web3Context";
 import Header from "./components/Header";
 import ConnectWallet from "./components/ConnectWallet";
 import InitialUserRegistration from "./components/InitialUserRegistration";
 import Feed from "./components/Feed";
-import Sidebar from "./components/Sidebar";
 import LoadingOverlay from "./components/LoadingOverlay";
 
 function AppContent() {
@@ -49,9 +47,8 @@ function AppContent() {
   return (
     <div className='min-h-screen bg-gray-900 text-white'>
       <Header />
-      <main className='container mx-auto px-4 py-8 flex'>
+      <main className='container mx-auto px-4 py-8'>
         <Feed />
-        <Sidebar />
       </main>
     </div>
   );

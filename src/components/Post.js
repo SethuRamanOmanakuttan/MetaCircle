@@ -1,9 +1,6 @@
-// src/components/Post.js
-
 import React, { useContext, useState, useEffect } from "react";
 import { Web3Context } from "../contexts/Web3Context";
 import LoadingOverlay from "./LoadingOverlay";
-import { ethers } from "ethers";
 
 function Post({ post, refreshPosts }) {
   const { contract, account } = useContext(Web3Context);
@@ -12,15 +9,14 @@ function Post({ post, refreshPosts }) {
   const [hasLiked, setHasLiked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [commentContent, setCommentContent] = useState("");
-  const [showCommentInput, setShowCommentInput] = useState(false);
-  const [reloadData, setReloadData] = useState(false);
+  const [showComments, setShowComments] = useState(false);
+  const [reloadData, setReloadData] = useState(true);
 
   useEffect(() => {
     const fetchPostDetails = async () => {
       if (contract) {
         try {
-          const likesCount = await contract.getPostLikes(post.postId);
-          const commentsCount = await contract.getPostComments(post.postId);
+          const likesCount = post[3];
           const userLiked = await contract.isPostLikedByUser(
             post.postId,
             account
@@ -28,20 +24,25 @@ function Post({ post, refreshPosts }) {
           setLikes(Number(likesCount));
           setHasLiked(userLiked);
 
-          // Fetch all comments for this post
-          const fetchedComments = [];
-          for (let i = 1; i <= commentsCount; i++) {
-            const comment = await contract.comments(i);
-            if (comment.postId.toString() === post.postId.toString()) {
-              fetchedComments.push(comment);
-            }
-          }
-          setComments(fetchedComments);
+          const fetchedComments = await contract.getCommentsForPost(
+            post.postId
+          );
+          let commentsArray = fetchedComments.toArray();
+          const commentsWithUsernames = await Promise.all(
+            commentsArray.map(async (comment) => {
+              const authorUsername = await contract.getPostAuthorUsername(
+                comment[2]
+              );
+              return { ...comment, authorUsername };
+            })
+          );
+          setComments(commentsWithUsernames);
         } catch (error) {
           console.error("Error fetching post details:", error);
         }
       }
     };
+
     fetchPostDetails();
   }, [contract, post.postId, account, reloadData]);
 
@@ -49,17 +50,15 @@ function Post({ post, refreshPosts }) {
     if (contract) {
       setIsLoading(true);
       try {
+        let txn;
         if (hasLiked) {
-          let txn = await contract.unlikePost(post.postId);
-          const recepit = await txn.wait(2);
-          console.log(recepit);
-          setReloadData(!reloadData);
+          txn = await contract.unlikePost(post.postId);
         } else {
-          let txn = await contract.likePost(post.postId);
-          const recepit = await txn.wait(2);
-          console.log(recepit);
-          setReloadData(!reloadData);
+          txn = await contract.likePost(post.postId);
         }
+        await txn.wait(2);
+        await refreshPosts();
+        setReloadData(!reloadData);
       } catch (error) {
         console.error("Error liking/unliking post:", error);
       } finally {
@@ -73,10 +72,9 @@ function Post({ post, refreshPosts }) {
       setIsLoading(true);
       try {
         let txn = await contract.commentOnPost(post.postId, commentContent);
-        const recepit = await txn.wait(2);
-        console.log(recepit);
+        await txn.wait(2);
         setCommentContent("");
-        setShowCommentInput(false);
+        await refreshPosts();
         setReloadData(!reloadData);
       } catch (error) {
         console.error("Error commenting on post:", error);
@@ -86,30 +84,24 @@ function Post({ post, refreshPosts }) {
     }
   };
 
-  const formatAddress = (address) => {
-    return `${String(address).slice(0, 6)}...${String(address).slice(-4)}`;
-  };
-
   return (
-    <div className='bg-gray-800 shadow-md rounded-lg px-6 py-4 mb-4 border border-gray-700'>
-      {isLoading && <LoadingOverlay message='Transaction in progress...' />}
-      <div className='flex items-center mb-3'>
-        <div className='w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold mr-3'>
-          {formatAddress(post[1])[0].toUpperCase()}
+    <div className='bg-background-light rounded-lg shadow-md p-6 mb-6 border border-background-dark'>
+      {isLoading && <LoadingOverlay />}
+      <div className='flex items-center mb-4'>
+        <div className='w-10 h-10 rounded-full bg-primary flex items-center justify-center text-background-dark font-bold mr-3'>
+          {post.authorUsername[0].toUpperCase()}
         </div>
         <div>
-          <p className='font-semibold text-gray-200'>
-            {formatAddress(post[1])}
-          </p>
+          <p className='font-semibold text-text-dark'>{post.authorUsername}</p>
         </div>
       </div>
-      <p className='text-gray-300 mb-4'>{post[2]}</p>
-      <div className='flex items-center mb-2'>
+      <p className='text-text-light mb-4'>{post[2]}</p>
+      <div className='flex items-center mb-4'>
         <button
           onClick={handleLike}
           className={`flex items-center ${
-            hasLiked ? "text-blue-400" : "text-gray-400"
-          } hover:text-blue-500 transition duration-150 ease-in-out mr-4`}
+            hasLiked ? "text-accent" : "text-text-default"
+          } hover:text-accent transition duration-150 ease-in-out mr-4`}
         >
           <svg
             className='w-5 h-5 mr-1'
@@ -121,10 +113,9 @@ function Post({ post, refreshPosts }) {
           </svg>
           <span>{likes}</span>
         </button>
-
         <button
-          onClick={() => setShowCommentInput(!showCommentInput)}
-          className='text-gray-400 hover:text-blue-500 flex items-center transition duration-150 ease-in-out'
+          onClick={() => setShowComments(!showComments)}
+          className='text-text-default hover:text-accent transition duration-150 ease-in-out flex items-center'
         >
           <svg
             className='w-5 h-5 mr-1'
@@ -143,21 +134,21 @@ function Post({ post, refreshPosts }) {
           <span>{comments.length}</span>
         </button>
       </div>
-      {showCommentInput && (
+      {showComments && (
         <div className='mt-4'>
-          <h3 className='text-gray-300 font-semibold mb-2'>Comments:</h3>
+          <h3 className='text-text-dark font-semibold mb-2'>Comments:</h3>
           {comments.map((comment, index) => (
-            <div key={index} className='bg-gray-700 rounded p-2 mb-2'>
-              <p className='text-gray-300 text-sm'>
-                <span className='font-semibold'>
-                  {formatAddress(comment.author)}:
+            <div key={index} className='bg-background-default rounded p-2 mb-2'>
+              <p className='text-text-light text-sm'>
+                <span className='font-semibold text-text-dark'>
+                  {comment.authorUsername}:
                 </span>{" "}
-                {comment.content}
+                {comment[3]}
               </p>
             </div>
           ))}
           <textarea
-            className='w-full bg-gray-700 text-gray-200 border border-gray-600 rounded p-2 mt-2'
+            className='bg-background-default border border-background-dark rounded-md p-2 w-full mt-2 focus:outline-none focus:ring-2 focus:ring-primary text-text-light'
             rows='2'
             placeholder='Write a comment...'
             value={commentContent}
@@ -165,7 +156,7 @@ function Post({ post, refreshPosts }) {
           ></textarea>
           <button
             onClick={handleComment}
-            className='mt-2 bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded text-sm transition duration-150 ease-in-out'
+            className='bg-primary text-background-dark font-medium py-2 px-4 rounded-md hover:bg-opacity-90 transition duration-150 ease-in-out mt-2'
           >
             Post Comment
           </button>

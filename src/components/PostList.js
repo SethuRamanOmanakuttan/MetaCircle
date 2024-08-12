@@ -1,5 +1,3 @@
-// src/components/PostList.js
-
 import React, { useState, useEffect, useContext } from "react";
 import { Web3Context } from "../contexts/Web3Context";
 import Post from "./Post";
@@ -30,7 +28,7 @@ function PostList() {
 
   return (
     <div className='mt-8'>
-      <h2 className='text-2xl font-bold mb-4 text-purple-600'>Posts</h2>
+      <h2 className='text-2xl font-bold mb-4 text-primary'>Posts</h2>
       {posts.map((post) => (
         <Post key={post.postId.toString()} post={post} />
       ))}
