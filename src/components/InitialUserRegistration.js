@@ -26,7 +26,7 @@ function InitialUserRegistration({ onRegistrationComplete }) {
       setIsLoading(true);
       try {
         let txn = await contract.createUser(username, bio);
-        await txn.wait(2);
+        await txn.wait(1);
         onRegistrationComplete();
       } catch (error) {
         console.error("Error registering user:", error);

@@ -18,9 +18,9 @@ function ConnectWallet() {
           </button>
         </div>
       </header>
-      <main className='flex-grow container mx-auto px-4 py-16 flex items-center justify-between'>
+      <main className='flex-grow container my-[-40px] mx-auto px-4 py-16 flex items-center justify-between'>
         <div className='max-w-xl'>
-          <h2 className='text-8xl font-bold text-primary mb-4'>
+          <h2 className='text-7xl font-bold text-primary mb-4'>
             Welcome to Metacircle
           </h2>
           <p className='text-xl text-text-light mb-8'>

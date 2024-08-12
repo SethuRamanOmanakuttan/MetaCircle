@@ -6,21 +6,8 @@ export const Web3Context = createContext();
 
 // Initialize contract (replace with your contract address and ABI)
 // Initialize contract (replace with your contract address and ABI)
-const contractAddress = "0x9e7377e6c356bdf0c5abf1195ae33ca2ff985d13";
+const contractAddress = "0x183b077f37eed2d0274e617ea0723b6b5ba18f30";
 const contractABI = [
-  {
-    inputs: [],
-    name: "commentCount",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
   {
     inputs: [
       {
@@ -37,40 +24,6 @@ const contractABI = [
     name: "commentOnPost",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    name: "comments",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "commentId",
-        type: "uint256",
-      },
-      {
-        internalType: "address",
-        name: "author",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "postId",
-        type: "uint256",
-      },
-      {
-        internalType: "string",
-        name: "content",
-        type: "string",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {
@@ -121,6 +74,92 @@ const contractABI = [
     inputs: [
       {
         internalType: "uint256",
+        name: "_groupId",
+        type: "uint256",
+      },
+    ],
+    name: "joinGroup",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_postId",
+        type: "uint256",
+      },
+    ],
+    name: "likePost",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_postId",
+        type: "uint256",
+      },
+    ],
+    name: "unlikePost",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "commentCount",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    name: "comments",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "commentId",
+        type: "uint256",
+      },
+      {
+        internalType: "string",
+        name: "authorUsername",
+        type: "string",
+      },
+      {
+        internalType: "uint256",
+        name: "postId",
+        type: "uint256",
+      },
+      {
+        internalType: "string",
+        name: "content",
+        type: "string",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
         name: "_postId",
         type: "uint256",
       },
@@ -135,9 +174,9 @@ const contractABI = [
             type: "uint256",
           },
           {
-            internalType: "address",
-            name: "author",
-            type: "address",
+            internalType: "string",
+            name: "authorUsername",
+            type: "string",
           },
           {
             internalType: "uint256",
@@ -167,6 +206,25 @@ const contractABI = [
       },
     ],
     name: "getPostAuthorUsername",
+    outputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_userAddress",
+        type: "address",
+      },
+    ],
+    name: "getUsername",
     outputs: [
       {
         internalType: "string",
@@ -287,32 +345,6 @@ const contractABI = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_groupId",
-        type: "uint256",
-      },
-    ],
-    name: "joinGroup",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_postId",
-        type: "uint256",
-      },
-    ],
-    name: "likePost",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "postCount",
     outputs: [
@@ -362,19 +394,6 @@ const contractABI = [
   {
     inputs: [
       {
-        internalType: "uint256",
-        name: "_postId",
-        type: "uint256",
-      },
-    ],
-    name: "unlikePost",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "address",
         name: "",
         type: "address",
@@ -413,7 +432,6 @@ export const Web3Provider = ({ children }) => {
         await window.ethereum.request({ method: "eth_requestAccounts" });
         const provider = new ethers.BrowserProvider(window.ethereum);
         const signer = await provider.getSigner();
-        console.log(signer);
         const address = signer.address;
         setAccount(address);
         setProvider(provider);

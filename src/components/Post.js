@@ -11,6 +11,7 @@ function Post({ post, refreshPosts }) {
   const [commentContent, setCommentContent] = useState("");
   const [showComments, setShowComments] = useState(false);
   const [reloadData, setReloadData] = useState(true);
+  const [connectedUsername, setConnectedUsername] = useState("");
 
   useEffect(() => {
     const fetchPostDetails = async () => {
@@ -21,19 +22,23 @@ function Post({ post, refreshPosts }) {
             post.postId,
             account
           );
+          console.log(account);
           setLikes(Number(likesCount));
           setHasLiked(userLiked);
 
+          const username = await contract.getUsername(account);
+          console.log(connectedUsername);
+          setConnectedUsername(username);
           const fetchedComments = await contract.getCommentsForPost(
             post.postId
           );
           let commentsArray = fetchedComments.toArray();
+          console.log(commentsArray);
           const commentsWithUsernames = await Promise.all(
             commentsArray.map(async (comment) => {
-              const authorUsername = await contract.getPostAuthorUsername(
-                comment[2]
-              );
-              return { ...comment, authorUsername };
+              console.log(comment);
+
+              return { ...comment };
             })
           );
           setComments(commentsWithUsernames);
@@ -56,7 +61,7 @@ function Post({ post, refreshPosts }) {
         } else {
           txn = await contract.likePost(post.postId);
         }
-        await txn.wait(2);
+        await txn.wait(1);
         await refreshPosts();
         setReloadData(!reloadData);
       } catch (error) {
@@ -70,9 +75,10 @@ function Post({ post, refreshPosts }) {
   const handleComment = async () => {
     if (contract && commentContent.trim()) {
       setIsLoading(true);
+      console.log(commentContent);
       try {
         let txn = await contract.commentOnPost(post.postId, commentContent);
-        await txn.wait(2);
+        await txn.wait(1);
         setCommentContent("");
         await refreshPosts();
         setReloadData(!reloadData);
@@ -141,7 +147,7 @@ function Post({ post, refreshPosts }) {
             <div key={index} className='bg-background-default rounded p-2 mb-2'>
               <p className='text-text-light text-sm'>
                 <span className='font-semibold text-text-dark'>
-                  {comment.authorUsername}:
+                  {comment[1]}:
                 </span>{" "}
                 {comment[3]}
               </p>
